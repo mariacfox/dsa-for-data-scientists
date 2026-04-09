@@ -1,0 +1,300 @@
+# Chapter 5 — Trees & Graphs
+
+*Built with [Claude](https://claude.ai) by Anthropic.*
+
+---
+
+## Key Concepts
+
+- **Binary trees** — nodes, depth, height, traversal
+- **DFS** — preorder, inorder, postorder (recursive & iterative)
+- **BFS** — level-order traversal using a queue
+- **Binary Search Trees** — left < node < right property
+- **Graphs** — adjacency list/matrix, directed vs undirected
+- Graph DFS & BFS, connected components
+- Implicit graphs (grids, word ladder)
+
+---
+
+## Trees — The Mental Model
+
+A tree is a **hierarchical graph with no cycles** and a designated root. In binary trees, each node has at most two children: `left` and `right`.
+
+```
+    1          ← root (depth 0)
+   / \
+  2   3        ← depth 1
+ / \
+4   5          ← depth 2 (leaves)
+```
+
+Key vocabulary: **depth** = distance from root, **height** = longest path to a leaf, **leaf** = node with no children.
+
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+
+---
+
+## Tree Traversals
+
+**DFS — 3 orderings** (all O(n) time, O(h) space where h = height):
+
+```python
+# Preorder: root → left → right (good for copying/serializing)
+def preorder(node):
+    if not node: return
+    visit(node)
+    preorder(node.left)
+    preorder(node.right)
+
+# Inorder: left → root → right (gives sorted order for BST!)
+def inorder(node):
+    if not node: return
+    inorder(node.left)
+    visit(node)
+    inorder(node.right)
+
+# Postorder: left → right → root (good for deletion, bottom-up info)
+def postorder(node):
+    if not node: return
+    postorder(node.left)
+    postorder(node.right)
+    visit(node)
+```
+
+**BFS — level-order** (O(n) time, O(n) space):
+
+```python
+from collections import deque
+def bfs(root):
+    if not root: return
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        visit(node)
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)
+```
+
+**Rule of thumb:** Use DFS when you need info from subtrees (bottom-up). Use BFS when you need level-by-level info or shortest path.
+
+---
+
+## Iterative DFS
+
+Recursive DFS uses the call stack implicitly. Iterative DFS uses an explicit stack — useful when recursion depth is a concern.
+
+```python
+# Iterative preorder (root → left → right)
+def preorder_iterative(root):
+    if not root: return []
+    stack, result = [root], []
+    while stack:
+        node = stack.pop()
+        result.append(node.val)
+        if node.right: stack.append(node.right)  # right first so left is processed first
+        if node.left: stack.append(node.left)
+    return result
+```
+
+Key insight: push **right before left** so left is on top and gets popped first.
+
+---
+
+## Path Tracking in DFS
+
+```python
+def dfs(node, path, result):
+    if not node:
+        return
+    path.append(node.val)
+    if not node.left and not node.right:  # leaf
+        result.append(list(path))          # snapshot — not a reference!
+    dfs(node.left, path, result)
+    dfs(node.right, path, result)
+    path.pop()                             # backtrack
+```
+
+`result.append(path)` appends a reference that gets mutated. Always use `list(path)` or `path[:]` to snapshot.
+
+---
+
+## Binary Search Trees (BST)
+
+The BST property: `left subtree < node.val < right subtree`. **Inorder traversal gives a sorted sequence.** Search/insert/delete are O(log n) on balanced trees.
+
+```python
+def search(node, target):
+    if not node: return False
+    if node.val == target: return True
+    if target < node.val: return search(node.left, target)
+    return search(node.right, target)
+```
+
+---
+
+## Graphs
+
+A graph is a set of **nodes (vertices)** connected by **edges**. Trees are a special case (connected, acyclic).
+
+- **Directed** — edges have direction (A→B ≠ B→A)
+- **Undirected** — edges go both ways
+- **Weighted** — edges have costs
+
+**Adjacency list** — standard representation:
+
+```python
+graph = {
+    0: [1, 2],
+    1: [0, 3],
+    2: [0],
+    3: [1]
+}
+```
+
+**Graph DFS** — use a `visited` set to avoid revisiting:
+
+```python
+def dfs(node, graph, visited):
+    visited.add(node)
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            dfs(neighbor, graph, visited)
+```
+
+**Graph BFS** — finds shortest path (unweighted):
+
+```python
+from collections import deque
+def bfs(start, graph):
+    visited = {start}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+```
+
+**Grid as implicit graph** — treat each cell as a node, neighbors are up/down/left/right:
+
+```python
+directions = [(0,1),(0,-1),(1,0),(-1,0)]
+for dr, dc in directions:
+    nr, nc = r + dr, c + dc
+    if 0 <= nr < rows and 0 <= nc < cols:
+        # valid neighbor
+```
+
+---
+
+## Connected Components
+
+To process every node in a disconnected graph, iterate over all nodes and run DFS/BFS from any unvisited one:
+
+```python
+def count_components(n, edges):
+    graph = defaultdict(list)
+    for u, v in edges:
+        graph[u].append(v)
+        graph[v].append(u)
+
+    visited = set()
+    components = 0
+
+    def dfs(node):
+        visited.add(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                dfs(neighbor)
+
+    for node in range(n):
+        if node not in visited:
+            dfs(node)
+            components += 1
+
+    return components
+```
+
+Pattern: **outer loop over all nodes → inner DFS/BFS → count how many times you start fresh**.
+
+---
+
+## Implicit Graphs — Word Ladder
+
+Implicit graphs aren't given to you — the graph is defined by a transformation rule. Nodes are states; edges exist between states that differ by one valid transformation.
+
+```python
+from collections import deque
+
+def ladderLength(beginWord, endWord, wordList):
+    word_set = set(wordList)
+    queue = deque([(beginWord, 1)])
+    visited = {beginWord}
+
+    while queue:
+        word, steps = queue.popleft()
+        for i in range(len(word)):
+            for c in 'abcdefghijklmnopqrstuvwxyz':
+                next_word = word[:i] + c + word[i+1:]
+                if next_word == endWord:
+                    return steps + 1
+                if next_word in word_set and next_word not in visited:
+                    visited.add(next_word)
+                    queue.append((next_word, steps + 1))
+    return 0
+```
+
+BFS on implicit graphs finds the **shortest path** (fewest transformations). Grid traversal is also an implicit graph.
+
+---
+
+## DFS vs BFS Decision Framework
+
+| Use DFS when... | Use BFS when... |
+|----------------|----------------|
+| You need info from subtrees (bottom-up) | You need shortest path (unweighted) |
+| Exploring all paths or checking existence | Level-by-level processing |
+| Backtracking is needed | Nearest/closest target |
+| Space is a concern (O(h) vs O(w)) | State-space search with uniform cost |
+
+**Rule of thumb: BFS = shortest path. DFS = everything else.**
+
+---
+
+## Complexity Summary
+
+| Operation | Time | Space |
+|-----------|------|-------|
+| Tree DFS (recursive) | O(n) | O(h) call stack |
+| Tree DFS (iterative) | O(n) | O(h) explicit stack |
+| Tree BFS | O(n) | O(w) where w = max width |
+| Graph DFS/BFS | O(V + E) | O(V) for visited set |
+| BST search/insert | O(log n) balanced, O(n) worst | O(h) |
+
+For a **balanced** binary tree, h = O(log n). For a skewed tree, h = O(n).
+
+---
+
+## Watch Outs
+
+- **Always handle `None` base case first** in recursive tree functions.
+- **Graph: mark visited BEFORE enqueuing** in BFS — prevents adding the same node to the queue multiple times.
+- **BST vs binary tree** — BST allows O(log n) solutions that plain binary tree can't do. Don't miss the BST property.
+- **Snapshot paths** — `result.append(list(path))` not `result.append(path)`.
+
+---
+
+## DS/MLE Connections
+
+- **Decision trees in sklearn** are literally binary trees — splitting left/right based on a feature threshold. Inorder traversal of a BST gives sorted values, just like reading decision tree splits in order.
+- **Graph traversal** underlies DAG-based pipelines (Airflow, dbt, MLflow) — topological sort is DFS on a directed graph. If you've debugged a task dependency cycle, you've reasoned about directed graphs.
+- **BFS shortest path** = finding the minimum number of preprocessing steps to transform raw data into a target format.
+- **Connected components** maps directly to clustering without labels: nodes in the same component are "similar" by some adjacency rule, just like DBSCAN groups points by density connectivity.
+- The `visited` set is the same pattern as `df.drop_duplicates()` — tracking what you've already processed.
