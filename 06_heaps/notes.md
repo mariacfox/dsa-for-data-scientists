@@ -144,16 +144,18 @@ def findMedian():
 
 ---
 
-### 4. Merge K Sorted Lists / Streams
+### 4. Merge K Sorted Streams
 
-Push the first element from each list into a min-heap. Each pop gives the next global minimum; then push that list's next element.
+**DS/MLE connection:** This is one of the most practically relevant heap patterns for ML engineering. Distributed preprocessing pipelines often produce K sorted output shards (one per worker). Merging them into a single sorted stream without loading everything into memory is exactly this problem. Same pattern applies when merging sorted model outputs from K inference workers, or combining K sorted event logs.
+
+Push the first element from each stream into a min-heap with a pointer back to its source. Each pop gives the global minimum; then push the next element from the same source.
 
 ```python
-# Merge k sorted arrays
+# Merge k sorted arrays — O(n log k), k = number of arrays
 heap = []
 for i, arr in enumerate(arrays):
     if arr:
-        heapq.heappush(heap, (arr[0], i, 0))  # (value, list_idx, elem_idx)
+        heapq.heappush(heap, (arr[0], i, 0))  # (value, array_idx, elem_idx)
 
 result = []
 while heap:
@@ -163,13 +165,23 @@ while heap:
         heapq.heappush(heap, (arrays[i][j+1], i, j+1))
 ```
 
+This is O(n log k) where n = total elements and k = number of streams — much better than re-sorting (O(n log n)) when k << n.
+
+**Python shortcut:** `heapq.merge(*sorted_iterables)` does this lazily (no random access required, works on generators).
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [23](https://leetcode.com/problems/merge-k-sorted-lists/) | Merge K Sorted Lists | Same pattern on linked lists. Push the head of each list; after each pop, push that node's `.next`. Maps directly to merging K sorted data shards from distributed preprocessing. |
+
 ---
 
 ## Watch Outs
 
 - **`heapq` is min-heap only** — always negate for max-heap and remember to negate back when reading results.
 - **Heap of tuples** — Python compares tuples lexicographically. If first elements tie, it compares the second. Add a unique tiebreaker (like index) to avoid comparing non-comparable objects: `(priority, i, item)`.
-- **`heapify` is O(n)**, not O(n log n) — useful when building from an existing list.
+- **`heapify` is O(n)**, not O(n log n) — this surprises most people. Building a heap from an existing list is linear time; you don't pay log n per element. Use `heapq.heapify(lst)` instead of pushing elements one by one when you already have all the data.
 - **No efficient search** — don't use a heap to check if something exists; use a set for that.
 
 ---

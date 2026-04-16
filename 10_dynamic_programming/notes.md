@@ -192,6 +192,21 @@ If the problem asks for the actual solutions (not just a count/value), that's ba
 
 ---
 
+## Quick Reference
+
+| Pattern | State | Recurrence | Time | Space | Signal |
+|---------|-------|------------|------|-------|--------|
+| 1D linear | `dp[i]` = answer at position i | `dp[i]` from `dp[i-1]`, `dp[i-2]` | O(n) | O(n) → O(1) | sequence, "at each step" |
+| Unbounded knapsack | `dp[a]` = answer for amount/capacity a | `dp[a]` from `dp[a-coin]` for each option | O(n·k) | O(n) | "use items multiple times," "make change" |
+| 0/1 knapsack | `dp[i][w]` = best using first i items, capacity w | include or exclude item i | O(n·W) | O(n·W) → O(W) | "use each item at most once" |
+| 2D sequence | `dp[i][j]` = answer for s1[:i], s2[:j] | from `dp[i-1][j-1]`, `dp[i-1][j]`, `dp[i][j-1]` | O(n·m) | O(n·m) → O(m) | two sequences, alignment, edit distance |
+| Grid paths | `dp[i][j]` = answer reaching cell (i,j) | from `dp[i-1][j]` and `dp[i][j-1]` | O(m·n) | O(m·n) → O(n) | grid, "number of paths," "minimum cost" |
+| State machine | `dp[i][state]` = best at position i in given state | transitions between states | O(n·s) | O(n·s) → O(s) | "holding/not holding," "cooldown," multiple modes |
+
+**Space optimization rule:** if `dp[i]` only depends on `dp[i-1]`, you only need to keep the previous row/value — reduce from O(n) to O(1), or O(n·m) to O(m).
+
+---
+
 ## Watch Outs
 
 - **Define the state clearly before coding** — vague state = wrong recurrence. Write it out in words first.

@@ -156,7 +156,22 @@ return len(stack) == 0
 
 ### 4. Monotonic Stack
 
-Maintain a stack that is always increasing or decreasing. When you find an element that breaks the property, **pop and process** everything it dominates.
+A monotonic stack maintains elements in strictly increasing or decreasing order. When a new element would break that order, you pop and process the elements it "dominates" before pushing the new one.
+
+**DS/MLE connection:** The "next greater value" query — for each element in a series, find the next value to its right that's larger — is a common time-series feature. In pandas you'd approximate this with `pd.Series.shift()` and masking, but that's O(n) per query. The monotonic stack answers all n queries in a single O(n) pass. This matters for feature engineering on large time-series: "how many days until the next spike?" is exactly Daily Temperatures (LC 739).
+
+```python
+# Template: next greater element to the right — O(n)
+stack = []  # stores indices of elements awaiting their next-greater
+result = [-1] * len(nums)
+for i, val in enumerate(nums):
+    while stack and nums[stack[-1]] < val:  # val is the answer for all these
+        result[stack.pop()] = val
+    stack.append(i)
+# Anything remaining in stack: no greater element exists → stays -1
+```
+
+The key insight: each element is pushed once and popped once → O(n) total, regardless of the nesting.
 
 ### LeetCode Problems
 
@@ -166,18 +181,6 @@ Maintain a stack that is always increasing or decreasing. When you find an eleme
 |---|---------|-------------|
 | [739](https://leetcode.com/problems/daily-temperatures/) | Daily Temperatures | Decreasing monotonic stack of indices. When a warmer day arrives, pop all colder days and record the distance. Maps to `rolling().argmax()` but O(n). |
 | [496](https://leetcode.com/problems/next-greater-element-i/) | Next Greater Element I | Same pattern: precompute next-greater for all of `nums2` using a monotonic stack + hash map, then answer each `nums1` query in O(1). |
-
-```python
-# Next greater element to the right
-stack = []  # stores indices
-result = [-1] * len(nums)
-for i, val in enumerate(nums):
-    while stack and nums[stack[-1]] < val:
-        idx = stack.pop()
-        result[idx] = val
-    stack.append(i)
-# Elements still in stack never found a greater element — result stays -1
-```
 
 **Stock Span variant** — pop and accumulate spans:
 
