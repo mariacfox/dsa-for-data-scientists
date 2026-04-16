@@ -66,6 +66,17 @@ Working in pandas/numpy trains you to think about entire columns at once: apply 
 
 ---
 
+## Other Resources
+
+This course focuses on the DS/ML bridge. For additional problem practice and video walkthroughs:
+
+- **[NeetCode.io](https://neetcode.io)** — the most approachable structured course for working through DSA patterns. Easier to follow than LeetCode's own course. The free tier covers a lot; NeetCode Pro (lifetime license) is worth paying for if you're doing serious prep.
+- **[NeetCode on YouTube](https://www.youtube.com/c/NeetCode)** — free video explanations for most LeetCode problems. Exceptionally clear walkthroughs; good to watch after you've attempted a problem yourself.
+- **[LeetCode Interview Crash Course](https://leetcode.com/explore/featured/card/leetcodes-interview-crash-course-data-structures-and-algorithms/)** — comprehensive and well-structured, but written for a general SWE audience. The DS/ML connections aren't there, which is the gap this repo tries to fill.
+- **Educative.io and similar** — structured courses exist but most content is behind a paywall with limited free access.
+
+---
+
 ## Dependencies
 
 ```bash
