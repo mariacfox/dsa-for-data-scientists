@@ -14,6 +14,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: LOW** — Linked lists are a core SWE topic but rarely appear in DS/MLE-specific coding screens. You almost never work with pointer-based data structures in data science. If your target company has a pure SWE-style coding loop (FAANG DS roles), skim this for awareness. Otherwise, skip it and invest the time in hashing, heaps, or DP instead.
+
+> **Coming from DS/ML:** You almost certainly don't use linked lists in your data work — and that's by design. Pandas and numpy store data in contiguous memory for cache efficiency; linked lists store data wherever it fits and connect it with pointers. The "follow the pointer" style of traversal is genuinely foreign to most data scientists. If this feels weird, that's expected.
+
+---
+
 ## What is a Linked List?
 
 A linked list is a sequence of **nodes**, where each node stores a value and a pointer to the next node. Unlike arrays, elements are **not contiguous in memory** — you follow pointers to traverse. Insertion/deletion is O(1) if you have the node, but lookup is O(n) since there's no indexing.
@@ -54,6 +60,13 @@ while curr:
 
 Two pointers at different speeds. Classic uses: finding the middle, detecting cycles.
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [876](https://leetcode.com/problems/middle-of-the-linked-list/) | Middle of the Linked List | slow moves 1, fast moves 2; when fast reaches end, slow is at the middle. O(1) space — no need to know length upfront. |
+| [141](https://leetcode.com/problems/linked-list-cycle/) | Linked List Cycle | Same fast/slow — if a cycle exists, fast eventually laps slow and they meet. Maps to cycle detection in dependency graphs. |
+
 ```python
 # Find middle
 slow, fast = head, head
@@ -77,6 +90,13 @@ return False
 ### 2. Reversing a Linked List
 
 The in-place iterative approach — memorize this.
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [206](https://leetcode.com/problems/reverse-linked-list/) | Reverse Linked List | Three pointers: `prev`, `curr`, `next_node`. Save next, flip pointer backward, advance both. O(1) space — no extra array. Maps to `list[::-1]` but in-place. |
+| [21](https://leetcode.com/problems/merge-two-sorted-lists/) | Merge Two Sorted Lists | Dummy head eliminates edge cases. Two pointers, one per list; always attach the node with the smaller value. Same two-pointer merge as `pd.merge_asof`. |
 
 ```python
 prev, curr = None, head

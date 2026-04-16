@@ -13,6 +13,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: MEDIUM** — Interval problems (merge, non-overlapping) are genuinely useful and appear often — think scheduling training jobs or merging overlapping event windows. These map naturally to pandas date range operations. Jump Game is conceptually useful. Gas Station is lower priority for most DS roles. Lead with the interval problems.
+
+> **Coming from DS/ML:** Gradient descent is a greedy algorithm — at each step it takes the locally optimal direction (steepest descent) without reconsidering past steps. Decision tree splitting is greedy — it picks the locally best feature at each node. The interview versions of greedy are simpler: usually "sort by X, then always take the best available choice." The hard part isn't implementing it — it's trusting that the local choice is actually globally optimal for *this specific problem*.
+
+---
+
 ## What is Greedy?
 
 A **greedy algorithm** makes the locally optimal choice at each step, never backtracking. It works when the problem has the **greedy choice property**: a locally optimal choice leads to a globally optimal solution.
@@ -49,6 +55,13 @@ for count, units in boxes:
 
 Classic greedy: to maximize non-overlapping intervals, always pick the interval that **ends earliest**.
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [435](https://leetcode.com/problems/non-overlapping-intervals/) | Non-overlapping Intervals | Sort by end time; greedily keep intervals whose start ≥ last kept end; count removals. Maps to scheduling ML training jobs without GPU conflicts. |
+| [56](https://leetcode.com/problems/merge-intervals/) | Merge Intervals | Sort by start; if current start ≤ merged[-1][1], extend the end; otherwise start a new interval. Maps to merging overlapping session windows. |
+
 ```python
 # Count maximum non-overlapping intervals
 intervals.sort(key=lambda x: x[1])  # sort by end time
@@ -60,7 +73,30 @@ for start, finish in intervals:
         end = finish
 ```
 
-### 3. Greedy on Characters / Digits
+### 3. Greedy on Arrays (Reachability)
+
+Track the farthest index reachable so far. If the current index exceeds it, return False.
+
+```python
+def canJump(nums):
+    max_reach = 0
+    for i, jump in enumerate(nums):
+        if i > max_reach:
+            return False
+        max_reach = max(max_reach, i + jump)
+    return True
+```
+
+### LeetCode Problems
+
+> **DS/MLE focus:** LC 55 (Jump Game) is a clean, commonly tested greedy problem with a good DS analogy. LC 134 (Gas Station) is lower priority for most DS roles — skip it unless you have extra time.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [55](https://leetcode.com/problems/jump-game/) | Jump Game | Track `max_reach`; if `i > max_reach` at any point, return False. One pass, O(n). Maps to feasibility checking in sequential decision pipelines. |
+| [134](https://leetcode.com/problems/gas-station/) | Gas Station | If total gas ≥ total cost, a solution exists. Scan for the point where cumulative surplus goes negative — that's where to reset the start. |
+
+### 4. Greedy on Characters / Digits
 
 For "maximize this number by changing one digit," scan and make the best local change.
 

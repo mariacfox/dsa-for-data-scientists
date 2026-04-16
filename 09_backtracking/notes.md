@@ -13,6 +13,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: LOW–MEDIUM** — Backtracking rarely appears in DS-specific interviews. If you're targeting a company with a pure SWE-style coding loop (FAANG DS roles), know Subsets (LC 78) and Combination Sum (LC 39). Otherwise, understanding the "choose → explore → unchoose" template conceptually is sufficient — you don't need to drill these problems. The Backtracking vs. DP distinction at the end of this chapter is the most useful thing to internalize.
+
+> **Coming from DS/ML:** Grid search over hyperparameters — without early stopping — is backtracking: try every combination, report what worked. The interview version adds a key step: **undo your choice** before trying the next one, so you can reuse the same state object rather than copying it at each level. The `choose → explore → unchoose` template is the whole pattern. If recursion feels uncomfortable, the trace cells in the notebook will show exactly what's happening at each step.
+
+---
+
 ## What is Backtracking?
 
 Backtracking is a **systematic search** through all possible solutions by building candidates incrementally and **abandoning ("backtracking") a candidate as soon as it can't lead to a valid solution**. It's DFS on a decision tree.
@@ -70,7 +76,21 @@ def subsets(nums):
     return result
 ```
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [78](https://leetcode.com/problems/subsets/) | Subsets | Append `curr[:]` at every recursion level (not just leaves). Use `start` to avoid revisiting earlier elements. Maps to exhaustive feature subset enumeration. |
+| [90](https://leetcode.com/problems/subsets-ii/) | Subsets II | Same as above but sort first and skip `if i > start and nums[i] == nums[i-1]` to avoid duplicate subsets. |
+
 ### 2. Permutations
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [46](https://leetcode.com/problems/permutations/) | Permutations | Track `used[]` array; at each position try every unused element. Backtrack by marking it unused again. Maps to trying all orderings of pipeline stages. |
+| [39](https://leetcode.com/problems/combination-sum/) | Combination Sum | Recur from the *same* index `i` (not `i+1`) to allow reuse. Prune when `candidates[i] > remaining`. Maps to hyperparameter combinations that hit a target score. |
 
 ```python
 def permutations(nums):

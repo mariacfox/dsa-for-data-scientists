@@ -16,6 +16,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: HIGH (trees) / MEDIUM (graphs)** — Decision trees make tree traversal unusually intuitive for data scientists: DFS = depth-first recursion through a tree, BFS = processing level by level. Max Depth, Level Order, and Number of Islands are frequently tested. Right Side View and Clone Graph are lower priority — focus your energy on tree DFS/BFS and the islands problem.
+
+> **Coming from DS/ML:** If you've used `sklearn`'s `DecisionTreeClassifier`, you've worked with a tree — the model is literally a tree of decisions. The interview version uses explicit `TreeNode` objects with `.left` and `.right` pointers instead of sklearn's internal arrays, but the traversal logic (go deeper, then come back up) is the same. Graphs are more general: think user-item recommendation graphs, knowledge graphs, or connected components in an image — `scipy.ndimage.label` is a graph algorithm.
+
+---
+
 ## Trees — The Mental Model
 
 A tree is a **hierarchical graph with no cycles** and a designated root. In binary trees, each node has at most two children: `left` and `right`.
@@ -82,6 +88,22 @@ def bfs(root):
 ```
 
 **Rule of thumb:** Use DFS when you need info from subtrees (bottom-up). Use BFS when you need level-by-level info or shortest path.
+
+### LeetCode Problems — Tree DFS
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [104](https://leetcode.com/problems/maximum-depth-of-binary-tree/) | Maximum Depth of Binary Tree | `depth(node) = 1 + max(depth(left), depth(right))`. Base case: `None → 0`. Maps to `sklearn.tree.get_depth()` and PyTorch computation graph depth. |
+| [112](https://leetcode.com/problems/path-sum/) | Path Sum | DFS tracking a running sum; return `True` if a leaf is reached with exactly 0 remaining. Classic bottom-up information flow. |
+
+### LeetCode Problems — Tree BFS
+
+> **DS/MLE focus:** LC 102 (level order) is very commonly tested and worth mastering. LC 199 is a variant — understand 102 first; 199 follows naturally.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [102](https://leetcode.com/problems/binary-tree-level-order-traversal/) | Binary Tree Level Order Traversal | Queue-based BFS; process exactly `len(queue)` nodes per level before moving to the next. Maps to layer-by-layer NN processing. |
+| [199](https://leetcode.com/problems/binary-tree-right-side-view/) | Binary Tree Right Side View | Same level-order BFS; take the last node of each level. |
 
 ---
 
@@ -223,6 +245,15 @@ def count_components(n, edges):
 ```
 
 Pattern: **outer loop over all nodes → inner DFS/BFS → count how many times you start fresh**.
+
+### LeetCode Problems — Graph DFS/BFS
+
+> **DS/MLE focus:** LC 200 (Number of Islands) is very commonly tested and maps directly to image segmentation and connected component labeling — high priority. LC 133 (Clone Graph) is lower priority for DS roles; skip if time is short.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [200](https://leetcode.com/problems/number-of-islands/) | Number of Islands | Flood-fill DFS/BFS on a grid. Each unvisited `'1'` starts a new island; mark all connected `'1'`s visited. Maps directly to `scipy.ndimage.label` for connected component labeling. |
+| [133](https://leetcode.com/problems/clone-graph/) | Clone Graph | BFS with a `seen` dict mapping `original → clone`. Create clone on first visit; reuse on revisit. Maps to deep-copying a computation graph. |
 
 ---
 

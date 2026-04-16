@@ -14,6 +14,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: MEDIUM** — Valid Parentheses (LC 20) is a must-know and appears frequently in any coding screen. Monotonic stacks (daily temperatures) come up occasionally, especially at companies doing stream processing or time-series work. Decode String (LC 394) is lower priority for most DS roles — skip it if time is short.
+
+> **Coming from DS/ML:** You've used stacks implicitly — every time Python calls a function, it pushes a frame onto the call stack and pops it when the function returns. `deque(maxlen=k)` from `collections` behaves like `pd.rolling(k)`: it keeps only the last `k` items and evicts older ones automatically. The interview patterns here make this explicit.
+
+---
+
 ## Stack — LIFO (Last In, First Out)
 
 Think of a stack of plates — you add and remove from the top only. The most recently added item is always the first removed. Perfect for matching pairs, undo operations, or tracking "the last thing we saw."
@@ -126,6 +132,15 @@ return "/" + "/".join(stack)
 
 Balanced brackets, matching tags, undo logic — push opens, pop and verify on closes.
 
+### LeetCode Problems
+
+> **DS/MLE focus:** LC 20 is a must-know and appears in nearly every coding screen. LC 394 is lower priority for DS roles — skip it if time is short.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [20](https://leetcode.com/problems/valid-parentheses/) | Valid Parentheses | Push open brackets; on each closing bracket, check the stack top is the matching open. Empty stack at end = valid. Maps to parsing nested JSON/SQL. |
+| [394](https://leetcode.com/problems/decode-string/) | Decode String | Push current string and repeat count onto stack on `[`; pop and multiply on `]`. Handles arbitrary nesting depth. |
+
 ```python
 stack = []
 pairs = {')': '(', '}': '{', ']': '['}
@@ -142,6 +157,15 @@ return len(stack) == 0
 ### 4. Monotonic Stack
 
 Maintain a stack that is always increasing or decreasing. When you find an element that breaks the property, **pop and process** everything it dominates.
+
+### LeetCode Problems
+
+> **DS/MLE focus:** LC 739 is the canonical monotonic stack problem and worth knowing. LC 496 is a variant of the same idea — understand the pattern from 739 first.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [739](https://leetcode.com/problems/daily-temperatures/) | Daily Temperatures | Decreasing monotonic stack of indices. When a warmer day arrives, pop all colder days and record the distance. Maps to `rolling().argmax()` but O(n). |
+| [496](https://leetcode.com/problems/next-greater-element-i/) | Next Greater Element I | Same pattern: precompute next-greater for all of `nums2` using a monotonic stack + hash map, then answer each `nums1` query in O(1). |
 
 ```python
 # Next greater element to the right

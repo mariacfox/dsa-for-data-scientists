@@ -14,6 +14,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: HIGH** — Frequency counting is literally what you do with `value_counts()`. Your existing DS intuition transfers directly here. Hash maps appear in nearly every coding interview, and the sliding window + frequency map combo is the highest-return pattern in this chapter.
+
+> **Coming from DS/ML:** You already use hash maps every day — a Python `dict` is a hash map, `Counter` is a frequency hash map, and `value_counts()` builds one for you automatically. This chapter is about building and querying them manually, and recognizing when replacing a slow list scan with a dict lookup turns an O(n²) solution into O(n).
+
+---
+
 ## What is Hashing?
 
 A **hash function** takes a key and maps it to a fixed-size integer — an index into an underlying array. This is what makes hash maps and sets fast: instead of scanning a list, you *compute* where something should be.
@@ -112,6 +118,13 @@ for i, val in enumerate(arr):
 
 Build a map in one pass, query it in another. Avoids nested loops → O(n) instead of O(n²).
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [1](https://leetcode.com/problems/two-sum/) | Two Sum | Store each `value → index` in a dict as you go; for each `num`, check if `target - num` is already in it. One pass, O(n). Maps to dict/merge lookups. |
+| [242](https://leetcode.com/problems/valid-anagram/) | Valid Anagram | `Counter(s) == Counter(t)`. Two strings are anagrams iff their frequency maps are identical. Maps to `value_counts()` comparison for categorical features. |
+
 ---
 
 ## Hashing + Sliding Window
@@ -206,6 +219,13 @@ def checkInclusion(p, s):
 
     return False
 ```
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [438](https://leetcode.com/problems/find-all-anagrams-in-a-string/) | Find All Anagrams in a String | Fixed window of `len(p)`; maintain a window `Counter` and slide. Match when `window == p_count`. Maps to fixed-size rolling n-gram extraction. |
+| [567](https://leetcode.com/problems/permutation-in-string/) | Permutation in String | Same fixed-window pattern — return `True` if any window matches. Simpler version of LC 438. |
 
 ---
 

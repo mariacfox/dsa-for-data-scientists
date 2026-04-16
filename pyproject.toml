@@ -1,0 +1,14 @@
+[project]
+name = "dsa-for-data-scientists"
+version = "0.1.0"
+description = "DSA concepts explained through the lens of pandas, numpy, sklearn, and tools data scientists use daily"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.8",
+    "networkx>=3.6.1",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "scikit-learn>=1.8.0",
+]

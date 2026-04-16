@@ -13,6 +13,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: MEDIUM–HIGH** — DP appears in most coding screens and has deep ML roots (Viterbi, DTW, CTC loss are all DP). 1D DP — climbing stairs, house robber, coin change — is the highest priority; get these solid first. 2D DP (LCS, edit distance) is worth knowing if you work in NLP or time-series alignment. The key skill is recognizing the recurrence relation, not memorizing solutions.
+
+> **Coming from DS/ML:** You've used DP without knowing it. The Viterbi algorithm (HMMs for sequence labeling), dynamic time warping (DTW for time-series similarity), CTC loss in speech/OCR models, and `pd.DataFrame.cumsum()` are all dynamic programming. The core idea — "compute each subproblem once, store the result, look it up instead of recomputing" — is the same as `@lru_cache` on a recursive function. Interview DP requires you to define the recurrence relation yourself and either memoize top-down or fill a table bottom-up.
+
+---
+
 ## What is Dynamic Programming?
 
 DP solves problems by breaking them into **overlapping subproblems** and storing results so you never compute the same thing twice. It works when the problem has:
@@ -94,9 +100,23 @@ def climbStairs(n):
     return b
 ```
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [70](https://leetcode.com/problems/climbing-stairs/) | Climbing Stairs | `dp[i] = dp[i-1] + dp[i-2]` — Fibonacci recurrence. Space-optimize to two variables. Maps to counting paths in a 2-step Markov chain. |
+| [198](https://leetcode.com/problems/house-robber/) | House Robber | `dp[i] = max(dp[i-1], dp[i-2] + nums[i])` — take this house or skip it. Maps to optimal non-adjacent feature selection. |
+
 ### 2. Unbounded Knapsack (Coin Change)
 
 You can reuse items. Inner loop iterates over amounts.
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [322](https://leetcode.com/problems/coin-change/) | Coin Change | `dp[a] = min(dp[a-c]+1 for c in coins if c<=a)`. Initialize `dp[0]=0`, rest `inf`. Maps to minimum number of model updates to reach a target. |
+| [139](https://leetcode.com/problems/word-break/) | Word Break | `dp[i] = True` if `s[:i]` can be segmented. For each `i`, check all `j < i` where `dp[j]` is True and `s[j:i]` is in the word set. Maps to sequence labeling feasibility. |
 
 ```python
 def coinChange(coins, amount):
@@ -109,7 +129,32 @@ def coinChange(coins, amount):
     return dp[amount] if dp[amount] != float('inf') else -1
 ```
 
-### 3. 2D DP — State Machine / With Cooldown
+### 3. 2D DP — Sequence Alignment
+
+Two sequences as inputs; `dp[i][j]` depends on `dp[i-1][j-1]`, `dp[i-1][j]`, and `dp[i][j-1]`.
+
+```python
+# Longest Common Subsequence
+def lcs(s1, s2):
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+```
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [1143](https://leetcode.com/problems/longest-common-subsequence/) | Longest Common Subsequence | `dp[i][j] = dp[i-1][j-1]+1` if chars match, else `max(dp[i-1][j], dp[i][j-1])`. The DP table IS the alignment matrix — same structure as DTW. |
+| [72](https://leetcode.com/problems/edit-distance/) | Edit Distance | Same 2D structure. Three choices per cell: insert (`dp[i][j-1]+1`), delete (`dp[i-1][j]+1`), replace (`dp[i-1][j-1] + (0 if match else 1)`). Maps to string similarity / fuzzy matching. |
+
+### 4. 2D DP — State Machine / With Cooldown
 
 Track multiple states at each index (e.g., holding vs. not holding stock).
 

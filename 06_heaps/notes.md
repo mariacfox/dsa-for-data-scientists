@@ -13,6 +13,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: HIGH** — Top-K selection is one of the most common DS interview problems and maps directly to `nlargest()`, `value_counts().nlargest(k)`, and `np.partition`. `heapq` fluency is expected. The two-heap streaming median (LC 295) is worth knowing for senior or ML infra roles; lower priority for standard DS positions.
+
+> **Coming from DS/ML:** When you call `df['score'].nlargest(k)`, pandas sorts internally and returns the top K. A heap does the same thing but without sorting everything — it's designed to answer "what's the current minimum/maximum?" in O(1) and update in O(log n). This matters when data arrives in a stream and you can't sort it all upfront. Python's `heapq` module is a min-heap (smallest element always at the front); negate values to simulate a max-heap.
+
+---
+
 ## What is a Heap?
 
 A **heap** is a complete binary tree stored as an array, satisfying the **heap property**:
@@ -71,6 +77,13 @@ heapq.heappush(heap, (priority, item))
 
 Keep a min-heap of size K. When it exceeds K, pop the minimum. At the end, the heap contains the K largest elements.
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [215](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Kth Largest Element in an Array | Min-heap of size k; push each element, pop when `len > k`. Final `heap[0]` = kth largest. O(n log k) — better than sorting when k << n. Maps to `.nlargest(k).iloc[-1]`. |
+| [347](https://leetcode.com/problems/top-k-frequent-elements/) | Top K Frequent Elements | `Counter` first, then min-heap of size k on `(freq, element)` pairs. Maps to `value_counts().nlargest(k)` but works streaming. |
+
 ```python
 import heapq
 
@@ -102,7 +115,36 @@ for x, y in points:
 return [[x, y] for _, x, y in heap]
 ```
 
-### 3. Merge K Sorted Lists / Streams
+### 3. Two-Heap Pattern (Running Median)
+
+Maintain a max-heap for the lower half and a min-heap for the upper half. Keep sizes balanced (differ by at most 1). Median = top of larger heap, or average of both tops.
+
+```python
+import heapq
+lo = []   # max-heap (negate values)
+hi = []   # min-heap
+
+def addNum(num):
+    heapq.heappush(lo, -num)
+    heapq.heappush(hi, -heapq.heappop(lo))  # balance: move lo's max to hi
+    if len(hi) > len(lo):
+        heapq.heappush(lo, -heapq.heappop(hi))
+
+def findMedian():
+    if len(lo) > len(hi):
+        return -lo[0]
+    return (-lo[0] + hi[0]) / 2
+```
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [295](https://leetcode.com/problems/find-median-from-data-stream/) | Find Median from Data Stream | Two-heap approach above. Maps to streaming median in online learning — can't sort the full stream. |
+
+---
+
+### 4. Merge K Sorted Lists / Streams
 
 Push the first element from each list into a min-heap. Each pop gives the next global minimum; then push that list's next element.
 

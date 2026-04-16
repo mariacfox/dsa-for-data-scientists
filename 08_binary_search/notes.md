@@ -13,6 +13,12 @@
 
 ---
 
+> **DS/MLE Interview Relevance: HIGH** — You already use binary search via `np.searchsorted` and `bisect` without thinking about it. The classic search (LC 704, LC 35) is foundational. The most valuable idea here is "binary search on the answer space" — recognizing when a problem's answer has a monotonic property and you can binary search possible answers rather than brute-forcing them. This pattern shows up more than you'd expect.
+
+> **Coming from DS/ML:** `np.searchsorted(arr, target)` and `bisect.bisect_left(arr, target)` are binary search — you may already use them for fast interval lookups or bucket assignment. The interview version requires you to write it from scratch, get the boundary conditions right, and — in the harder variant — apply it to a problem where the "array" you're searching is the space of all possible answers.
+
+---
+
 ## What is Binary Search?
 
 Binary search finds a target in a **sorted** space in O(log n) by halving the search range each step.
@@ -74,11 +80,40 @@ Also available via `bisect.bisect_left(nums, target)` in Python.
 
 Straightforward — search for a value in a sorted array. Use Template 1.
 
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [704](https://leetcode.com/problems/binary-search/) | Binary Search | Pure Template 1. Maps directly to `np.searchsorted(arr, target)` — knowing the manual version helps you spot when you need a custom variant. |
+| [35](https://leetcode.com/problems/search-insert-position/) | Search Insert Position | Same as binary search but return `left` when not found (the insertion index). Maps to `np.searchsorted(arr, target, side='left')`. |
+
 ### 2. First / Last Occurrence
 
 Use Template 2 twice — once for the left boundary, once for the right boundary (search for `target+1` then subtract 1).
 
-### 3. Binary Search on the Answer (Solution Space)
+### 3. Modified Binary Search (Rotated Arrays)
+
+When the sorted array has been rotated, one half is always sorted. Use that to eliminate half the search space.
+
+```python
+def findMin(nums):
+    lo, hi = 0, len(nums) - 1
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if nums[mid] > nums[hi]:
+            lo = mid + 1   # min is in right half
+        else:
+            hi = mid       # min is in left half (including mid)
+    return nums[lo]
+```
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [153](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/) | Find Minimum in Rotated Sorted Array | Compare `nums[mid]` to `nums[hi]`; if mid > hi, rotation point is right. Otherwise it's left. O(log n) vs O(n) scan. |
+
+### 4. Binary Search on the Answer (Solution Space)
 
 The most powerful and most underrated pattern. Instead of searching an array, binary search over all *possible answers* when the answer has a **monotonic property** — if answer X works, then X+1 also works (or vice versa).
 
@@ -100,6 +135,13 @@ def solve(nums, threshold):
 ```
 
 Signal phrases: "minimum possible maximum," "largest X such that," "split array into K parts," "at least/at most."
+
+### LeetCode Problems
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [875](https://leetcode.com/problems/koko-eating-bananas/) | Koko Eating Bananas | Answer space = `[1, max(piles)]`. `feasible(k)` = `sum(ceil(p/k) for p in piles) <= h`. Binary search for minimum valid k. Maps to threshold optimization. |
+| [1011](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/) | Capacity to Ship Packages in D Days | Answer space = `[max(weights), sum(weights)]`. `feasible(cap)` = can we ship in D days? Same answer-space pattern. |
 
 ---
 
