@@ -16,6 +16,8 @@ This course builds that connection explicitly. The goal is not to learn DSA for 
 
 This is not a comprehensive DSA textbook. It is a targeted interview prep resource organized around what actually shows up in DS/MLE coding screens, explained in terms of the tools you already use.
 
+I still struggle with these problems. This repo was my attempt to build the connections that seemed missing — but the DS/ML bridges are a work in progress and I'll keep improving them. If something doesn't click or a connection could be clearer, feel free to open an issue.
+
 ---
 
 ## Chapters
