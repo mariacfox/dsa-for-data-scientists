@@ -69,6 +69,31 @@ max_val = -heapq.heappop(heap)
 heapq.heappush(heap, (priority, item))
 ```
 
+### `heapify` vs building incrementally
+
+Two ways to get data into a heap — pick based on whether you have all the data upfront:
+
+| Situation | Pattern | Time |
+|-----------|---------|------|
+| All data already in a list | `heapq.heapify(nums)` | O(n) |
+| Processing elements one at a time (stream, filter) | blank list + `heappush` | O(n log n) |
+| Top-K from a fixed array | `heapify` first, then `heappop` k times | O(n + k log n) |
+| Top-K from a stream / fixed-size window | blank list, `heappush` + `heappop` to cap size | O(n log k) |
+| Merging k sorted sources | blank list, `heappush` tuples | O(n log k) |
+
+```python
+# heapify — O(n), in-place, use when you already have the full list
+nums = [3, 1, 4, 1, 5]
+heapq.heapify(nums)          # nums IS now the heap
+
+# incremental — O(n log n) total, use when processing one element at a time
+heap = []
+for num in stream:
+    heapq.heappush(heap, num)
+```
+
+Common mistake: calling `heapq.heapify([])` (no-op, but confusing) or `heappush`-ing every element when you already have a full list and could `heapify` in O(n).
+
 ---
 
 ## Core Patterns
