@@ -89,6 +89,79 @@ def bfs(root):
 
 **Rule of thumb:** Use DFS when you need info from subtrees (bottom-up). Use BFS when you need level-by-level info or shortest path.
 
+---
+
+## Height of a Binary Tree
+
+**Height** = the number of edges on the longest path from root to a leaf. (Some definitions count nodes instead of edges — LeetCode uses nodes, so `height(single node) = 1`, `height(None) = 0`.)
+
+This is a classic bottom-up DFS: you can't know a node's height until you know its children's heights. The recursion naturally handles it.
+
+```python
+def height(node):
+    if not node:
+        return 0                              # base case: empty tree has height 0
+    left_h  = height(node.left)
+    right_h = height(node.right)
+    return 1 + max(left_h, right_h)          # current node adds 1
+```
+
+**Trace on a small tree:**
+```
+    1
+   / \
+  2   3
+ /
+4
+```
+- `height(4)` → `1 + max(0, 0)` = 1
+- `height(2)` → `1 + max(1, 0)` = 2
+- `height(3)` → `1 + max(0, 0)` = 1
+- `height(1)` → `1 + max(2, 1)` = **3**
+
+**Pattern:** any problem asking you to compute something bottom-up per node uses this same skeleton — compute left, compute right, combine, return. Height is the simplest version; balanced tree check and diameter use the exact same structure.
+
+**DS connection:** `sklearn`'s `DecisionTreeClassifier` exposes `.get_depth()` — that's this function. A deeper tree = more splits = more risk of overfitting, which is why `max_depth` is a key hyperparameter.
+
+---
+
+## Depth of a Node
+
+**Depth** = distance from the root down to a given node. Root has depth 0. The opposite direction from height — you pass depth *down* as a parameter rather than returning it *up*.
+
+```python
+def depth(node, target, current_depth=0):
+    if not node:
+        return -1                                        # not found
+    if node.val == target:
+        return current_depth
+    left  = depth(node.left,  target, current_depth + 1)
+    right = depth(node.right, target, current_depth + 1)
+    return left if left != -1 else right
+```
+
+**Height vs depth — the key distinction:**
+
+| | Direction | Computed | Use when... |
+|--|-----------|----------|-------------|
+| **Height** | bottom-up | returned from children | "how tall is this subtree?" |
+| **Depth** | top-down | passed as parameter | "how far is this node from the root?" |
+
+In practice, most LeetCode tree problems use height (bottom-up). Depth comes up in level-order problems (BFS naturally gives you depth via level count) and path problems where you track how deep you've gone.
+
+**BFS gives depth for free** — the level number in a BFS traversal is the depth of every node on that level:
+
+```python
+from collections import deque
+def node_depths(root):
+    queue = deque([(root, 0)])          # (node, depth)
+    while queue:
+        node, d = queue.popleft()
+        print(f"node {node.val} is at depth {d}")
+        if node.left:  queue.append((node.left,  d + 1))
+        if node.right: queue.append((node.right, d + 1))
+```
+
 ### LeetCode Problems — Tree DFS
 
 | # | Problem | Key Insight |
