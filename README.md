@@ -77,6 +77,12 @@ This course focuses on the DS/ML bridge. For additional problem practice and vid
 
 ---
 
+## Attribution
+
+Problem numbers and titles used throughout this course refer to problems on [LeetCode](https://leetcode.com). Problem descriptions are paraphrased in plain English; this course is not affiliated with LeetCode or NeetCode.
+
+---
+
 ## Dependencies
 
 ```bash
