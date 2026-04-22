@@ -13,6 +13,7 @@
 - **Graphs** — adjacency list/matrix, directed vs undirected
 - Graph DFS & BFS, connected components
 - Implicit graphs (grids, word ladder)
+- **DAGs & Topological Sort** — Kahn's algorithm, cycle detection
 
 ---
 
@@ -359,6 +360,72 @@ BFS on implicit graphs finds the **shortest path** (fewest transformations). Gri
 
 ---
 
+## Topological Sort (DAGs)
+
+A **DAG** (Directed Acyclic Graph) is a directed graph with no cycles. Topological sort produces a linear ordering of nodes such that for every directed edge A → B, A appears before B in the output.
+
+**DS parallel:** Every time you define tasks in Airflow, dbt, or MLflow, the orchestrator runs a topological sort to determine execution order. When you get a `CycleError` in dbt or a circular dependency warning in Airflow, it means topological sort failed — there's no valid ordering.
+
+### Kahn's Algorithm (BFS-based)
+
+The intuition: **tasks with no remaining dependencies go first.** Process them, reduce the dependency count of their dependents, and repeat.
+
+1. Count **in-degree** (number of incoming edges) for every node
+2. Enqueue all nodes with in-degree 0 — these have no prerequisites
+3. BFS: pop a node, add it to the result, decrement in-degree of its neighbors; if a neighbor hits 0, enqueue it
+4. If result contains all n nodes → valid order. If not → cycle exists.
+
+```python
+from collections import deque, defaultdict
+
+def topological_sort(n, edges):
+    """
+    n: number of nodes (0..n-1)
+    edges: list of (u, v) — u must come before v
+    Returns: valid ordering, or [] if a cycle is detected
+    """
+    graph = defaultdict(list)
+    in_degree = [0] * n
+
+    for u, v in edges:
+        graph[u].append(v)
+        in_degree[v] += 1
+
+    queue = deque(i for i in range(n) if in_degree[i] == 0)
+    order = []
+
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+
+    return order if len(order) == n else []  # empty list = cycle detected
+```
+
+**Cycle detection is free:** any node stuck in a cycle never has its in-degree reach 0, so it never enters the queue. `len(order) < n` catches it.
+
+**Airflow analogy:**
+```
+raw_data → clean → featurize → train → evaluate
+```
+- `raw_data` has in-degree 0 → runs first
+- `train` waits until `featurize` completes (in-degree decrements to 0)
+- Add a back-edge `evaluate → clean` → cycle → no valid order → pipeline fails to start
+
+### LeetCode Problems
+
+> **DS/MLE focus:** Medium priority — not tested as often as islands or tree DFS, but the DAG-to-pipeline analogy makes it unusually intuitive for DS audiences. LC 207 is the standard version; LC 210 is the same algorithm with the order returned instead of a boolean.
+
+| # | Problem | Key Insight |
+|---|---------|-------------|
+| [207](https://leetcode.com/problems/course-schedule/) | Course Schedule | Topo sort on a prerequisite graph. Return `True` if no cycle (`len(order) == numCourses`). Direct Airflow/dbt analogy: can all tasks complete given dependencies? |
+| [210](https://leetcode.com/problems/course-schedule-ii/) | Course Schedule II | Same Kahn's algorithm — return the ordering instead of just True/False. |
+
+---
+
 ## DFS vs BFS Decision Framework
 
 | Use DFS when... | Use BFS when... |
@@ -398,7 +465,7 @@ For a **balanced** binary tree, h = O(log n). For a skewed tree, h = O(n).
 ## DS/MLE Connections
 
 - **Decision trees in sklearn** are literally binary trees — splitting left/right based on a feature threshold. Inorder traversal of a BST gives sorted values, just like reading decision tree splits in order.
-- **Graph traversal** underlies DAG-based pipelines (Airflow, dbt, MLflow) — topological sort is DFS on a directed graph. If you've debugged a task dependency cycle, you've reasoned about directed graphs.
+- **DAG-based pipelines** (Airflow, dbt, MLflow) run a topological sort every time they schedule work. A `CycleError` in dbt is literally a failed topo sort. Kahn's algorithm is the mechanism behind "which tasks are ready to run now?"
 - **BFS shortest path** = finding the minimum number of preprocessing steps to transform raw data into a target format.
 - **Connected components** maps directly to clustering without labels: nodes in the same component are "similar" by some adjacency rule, just like DBSCAN groups points by density connectivity.
 - The `visited` set is the same pattern as `df.drop_duplicates()` — tracking what you've already processed.
