@@ -67,7 +67,30 @@ freq.most_common(2)        # [('a', 3), ('n', 2)]
 seen = set()
 seen.add(x)
 x in seen          # O(1)
+
+# OrderedDict — order-aware dict operations
+from collections import OrderedDict
+
+cache = OrderedDict()
+cache['a'] = 1
+cache['b'] = 2
+cache['c'] = 3
+cache.move_to_end('a')              # moves 'a' to back  → b, c, a
+cache.move_to_end('c', last=False)  # moves 'c' to front → c, b, a
+cache.popitem(last=True)            # removes ('a', 1)  — most recently used
+cache.popitem(last=False)           # removes ('c', 3)  — least recently used
 ```
+
+**`defaultdict` vs `OrderedDict` — they solve different problems:**
+
+| | `defaultdict` | `OrderedDict` |
+|---|---|---|
+| Solves | Missing key → auto-init (no `KeyError`) | Order-aware ops: move items, pop from front or back |
+| Key method | `d[missing_key]` works silently | `move_to_end()`, `popitem(last=True/False)` |
+| Interview use | Frequency maps, grouping | LRU cache ([LC 146](https://leetcode.com/problems/lru-cache/)) |
+| Replaces | `d.get(k, 0) + 1` boilerplate | Nothing in base `dict` — `move_to_end` has no plain-dict equivalent |
+
+> Note: Python 3.7+ dicts preserve insertion order by default. `OrderedDict` is only needed when you need `move_to_end()` or when equality must be order-sensitive (`OrderedDict([('a',1),('b',2)]) != OrderedDict([('b',2),('a',1)])`).
 
 ---
 
