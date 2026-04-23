@@ -90,7 +90,7 @@ def subsets(nums):
 | # | Problem | Key Insight |
 |---|---------|-------------|
 | [46](https://leetcode.com/problems/permutations/) | Permutations | Track `used[]` array; at each position try every unused element. Backtrack by marking it unused again. Maps to trying all orderings of pipeline stages. |
-| [39](https://leetcode.com/problems/combination-sum/) | Combination Sum | Recur from the *same* index `i` (not `i+1`) to allow reuse. Prune when `candidates[i] > remaining`. Maps to hyperparameter combinations that hit a target score. |
+| [39](https://leetcode.com/problems/combination-sum/) | Combination Sum | Recur from the *same* index `i` (not `i+1`) to allow reuse. Prune when `candidates[i] > remaining` — this is the step that grid search skips. |
 
 ```python
 def permutations(nums):
@@ -178,6 +178,6 @@ def generateParenthesis(n):
 Backtracking is essentially **exhaustive search with early stopping** — similar to how tree-based models prune branches that can't improve the objective. The "choose → explore → unchoose" pattern is the recursive equivalent of a context manager that restores state after each iteration.
 
 More concretely:
-- **Grid search** over hyperparameter combinations is backtracking without pruning — you explore every combination
+- **Grid search** over hyperparameter combinations is backtracking without pruning — you explore every combination. 3 hyperparameters × 10 values each = 1,000 fits; backtracking with pruning on the same space might evaluate 50.
 - **Pruning** in backtracking = early stopping in model training = branch-and-bound in integer programming
 - Generating all possible feature subsets for selection is literally the power set / subsets problem
