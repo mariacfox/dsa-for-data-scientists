@@ -15,7 +15,7 @@
 
 > **DS/MLE Interview Relevance: MEDIUM–HIGH** — DP appears in most coding screens and has deep ML roots (Viterbi, DTW, CTC loss are all DP). 1D DP — climbing stairs, house robber, coin change — is the highest priority; get these solid first. 2D DP (LCS, edit distance) is worth knowing if you work in NLP or time-series alignment. The key skill is recognizing the recurrence relation, not memorizing solutions.
 
-> **Coming from DS/ML:** You've used DP without knowing it. The Viterbi algorithm (HMMs for sequence labeling), dynamic time warping (DTW for time-series similarity), CTC loss in speech/OCR models, and `pd.DataFrame.cumsum()` are all dynamic programming. The core idea — "compute each subproblem once, store the result, look it up instead of recomputing" — is the same as `@lru_cache` on a recursive function. Interview DP requires you to define the recurrence relation yourself and either memoize top-down or fill a table bottom-up.
+> **Coming from DS/ML:** You've used DP without knowing it. The Viterbi algorithm (HMMs for sequence labeling), dynamic time warping (DTW for time-series similarity), and `pd.DataFrame.cumsum()` are all dynamic programming. The core idea — "compute each subproblem once, store the result, look it up instead of recomputing" — is the same as `@lru_cache` on a recursive function. Interview DP requires you to define the recurrence relation yourself and either memoize top-down or fill a table bottom-up.
 
 ---
 
@@ -183,12 +183,32 @@ def uniquePaths(m, n):
 
 ---
 
-## Backtracking vs. DP (Revisited)
+## DP vs Backtracking vs DFS/BFS
 
-- **Backtracking**: enumerates actual solutions. Use when you need to *list* them.
-- **DP**: finds the count/best value without enumeration. Use when the answer is "how many," "maximum," "minimum," or "is it possible."
+These approaches feel similar because they all explore a state space recursively. The differences are in *what you're looking for* and *whether subproblems repeat*.
 
-If the problem asks for the actual solutions (not just a count/value), that's backtracking.
+| Approach | What it does | Use when... | Subproblems repeat? |
+|----------|-------------|-------------|---------------------|
+| DFS/BFS | Traverse a graph or tree | Reachability, shortest path, connected components | No — each node visited once |
+| Backtracking | DFS on an implicit decision tree, with undo | Need to *enumerate* all valid solutions | No — solutions are distinct paths |
+| DP | Backtracking + memoization | Need a count, max, min, or feasibility check | Yes — same subproblem reached many ways |
+
+**The key relationship:** DP is backtracking with a cache. If you write a backtracking solution and notice you're solving the same subproblem multiple times, that's the signal to switch to DP.
+
+**Concrete example — Coin Change:**
+- Backtracking approach: try every combination of coins, enumerate all that sum to the target → exponential time, finds all solutions
+- DP approach: `dp[amount]` = min coins to reach that amount, fill once → O(n·k), finds the optimal value
+
+**Signal words:**
+
+| If the problem asks for... | Use |
+|---------------------------|-----|
+| "find all," "list every," "generate all" | Backtracking |
+| "minimum," "maximum," "count," "is it possible," "unique paths" | DP |
+| "shortest path," "fewest steps" (on a graph) | BFS |
+| "connected components," "does a path exist" | DFS |
+
+The overlap: BFS also finds shortest path (minimum steps), and DP can also answer "minimum cost path" — the difference is that BFS works on explicit graphs where each step has equal cost, while DP handles variable costs and complex state transitions.
 
 ---
 
@@ -218,13 +238,12 @@ If the problem asks for the actual solutions (not just a count/value), that's ba
 
 ## DS/MLE Connections
 
-DP is deeply embedded in ML — you've been using it without calling it that:
+DP is deeply embedded in ML — you've been using it without calling it that.
 
-- **Viterbi algorithm** (HMMs for sequence labeling) is DP — fills a trellis table bottom-up, exactly like 2D DP
-- **Dynamic time warping (DTW)** for time-series similarity is DP — `dp[i][j]` = min cost to align sequences up to positions i, j
-- **Forward-backward algorithm** for HMMs is DP in both directions
-- **CTC loss** in speech/OCR models uses DP to marginalize over all valid alignments
-- The core idea — "don't recompute what you've already computed" — is exactly what **memoization does in model serving** (caching inference results for repeated inputs)
-- **State transitions in DP** are analogous to state transitions in Markov models: `dp[i]` = probability of being in state i after i steps, updated from the previous state
+**Viterbi algorithm** — used in Hidden Markov Models (HMMs) for sequence labeling tasks like named entity recognition or part-of-speech tagging. You have a sequence of observed words and want to find the most likely sequence of hidden labels (e.g., NOUN, VERB, NOUN). The DP table is `dp[i][state]` = max probability of reaching label `state` at position `i`. Each cell is filled from the previous column: `dp[i][s] = max over all prev labels(dp[i-1][prev] * P(s|prev) * P(word_i|s))`. This is exactly the state machine DP pattern — same structure as the stock cooldown problem.
 
-The mental model: wherever you see a recurrence relation or a filling-in-a-table computation in statistics or ML, there's a DP algorithm under the hood.
+**Dynamic time warping (DTW)** — measures similarity between two time series that may be stretched or compressed differently (e.g., two people saying the same word at different speeds, or two ECG signals with different heart rates). The DP table is `dp[i][j]` = minimum cost to align the first `i` points of series A with the first `j` points of series B. Each cell takes the minimum of three neighbors: `dp[i-1][j]`, `dp[i][j-1]`, `dp[i-1][j-1]`. This is structurally identical to Edit Distance (LC 72) — same 2D table, same three-way recurrence, same fill order.
+
+**`pd.cumsum()` and `pd.rolling()`** — simpler examples of DP: each value is computed from the previous one, stored, and reused.
+
+The pattern: anywhere in ML where you fill a table row-by-row (or column-by-column), and each cell depends on previously computed cells, that's DP.

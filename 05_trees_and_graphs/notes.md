@@ -428,14 +428,29 @@ raw_data → clean → featurize → train → evaluate
 
 ## DFS vs BFS Decision Framework
 
-| Use DFS when... | Use BFS when... |
-|----------------|----------------|
-| You need info from subtrees (bottom-up) | You need shortest path (unweighted) |
-| Exploring all paths or checking existence | Level-by-level processing |
-| Backtracking is needed | Nearest/closest target |
-| Space is a concern (O(h) vs O(w)) | State-space search with uniform cost |
-
 **Rule of thumb: BFS = shortest path. DFS = everything else.**
+
+BFS explores nodes in order of distance from the source — all nodes 1 hop away, then 2 hops, and so on. The first time BFS reaches a target, it has taken the fewest possible steps. DFS will find *a* path, not necessarily the shortest one.
+
+**Signal words to watch for:**
+
+| If the problem says... | Use |
+|------------------------|-----|
+| "minimum number of steps / moves / operations" | BFS |
+| "shortest path" or "fewest transformations" | BFS |
+| "level order" or "layer by layer" | BFS |
+| "count connected components" or "number of islands" | DFS |
+| "flood fill" or "mark all connected cells" | DFS |
+| "does a path exist" / "can you reach X" | DFS |
+| "all possible paths" or "find every combination" | DFS |
+| "max/min depth" or "height of tree" | DFS |
+| "validate or compare subtrees" | DFS |
+| "detect a cycle" | DFS |
+| Backtracking or need info from children first | DFS |
+
+DFS dominates tree problems because most tree questions require information from subtrees — and recursion (DFS) naturally propagates that information back up. BFS shines on graph problems where you need minimum distance.
+
+**Space trade-off:** DFS uses O(h) stack space (O(log n) balanced, O(n) skewed). BFS uses O(w) queue space where w = max width — can be O(n) at the bottom of a full tree. For most interview problems this doesn't matter, but it's the right answer if asked.
 
 ---
 
