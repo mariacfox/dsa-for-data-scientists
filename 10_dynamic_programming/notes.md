@@ -189,15 +189,19 @@ These approaches feel similar because they all explore a state space recursively
 
 | Approach | What it does | Use when... | Subproblems repeat? |
 |----------|-------------|-------------|---------------------|
-| DFS/BFS | Traverse a graph or tree | Reachability, shortest path, connected components | No — each node visited once |
+| DFS/BFS | Traverse a graph or tree that already exists | Reachability, shortest path, connected components | No — each node visited once |
 | Backtracking | DFS on an implicit decision tree, with undo | Need to *enumerate* all valid solutions | No — solutions are distinct paths |
-| DP | Backtracking + memoization | Need a count, max, min, or feasibility check | Yes — same subproblem reached many ways |
+| Top-down DP | DFS on an implicit subproblem graph, with memoization | Need a count, max, min, or feasibility — subproblems repeat | Yes — cache prevents recomputing |
+| Bottom-up DP | Fill a table iteratively in dependency order | Same as top-down — iterative version, no recursion | Yes — each cell computed exactly once |
+
+**Is DP just DFS?** Partially. Top-down DP (memoized recursion with `@lru_cache`) is literally DFS on the subproblem graph — you recurse depth-first, and the cache skips already-solved nodes. Bottom-up DP fills a table left-to-right and doesn't resemble DFS at all in implementation. Same mathematical structure, completely different code.
 
 **The key relationship:** DP is backtracking with a cache. If you write a backtracking solution and notice you're solving the same subproblem multiple times, that's the signal to switch to DP.
 
 **Concrete example — Coin Change:**
-- Backtracking approach: try every combination of coins, enumerate all that sum to the target → exponential time, finds all solutions
-- DP approach: `dp[amount]` = min coins to reach that amount, fill once → O(n·k), finds the optimal value
+- Backtracking: try every combination of coins that sums to the target → exponential time, enumerates all solutions
+- Top-down DP: same recursion + `@lru_cache` → each subproblem solved once
+- Bottom-up DP: `dp[amount] = min coins to reach that amount`, fill iteratively → O(n·k), no recursion
 
 **Signal words:**
 
@@ -208,7 +212,7 @@ These approaches feel similar because they all explore a state space recursively
 | "shortest path," "fewest steps" (on a graph) | BFS |
 | "connected components," "does a path exist" | DFS |
 
-The overlap: BFS also finds shortest path (minimum steps), and DP can also answer "minimum cost path" — the difference is that BFS works on explicit graphs where each step has equal cost, while DP handles variable costs and complex state transitions.
+**The BFS/DP overlap:** both can answer "minimum steps/cost." BFS works on explicit graphs where each edge has equal cost (unweighted). DP handles variable costs and complex state — use DP when the cost of each step depends on prior choices.
 
 ---
 
